@@ -32,7 +32,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!user || !isAdmin) return;
-    supabase.from("properties").select("*").order("name").then(({ data }) => {
+    supabase.from("cs_properties").select("*").order("name").then(({ data }) => {
       setProperties(data || []);
       setDataLoading(false);
     });
@@ -42,10 +42,10 @@ export default function AdminPage() {
     setSelectedProp(p);
     setTab("info");
     const [svc, cont, zone, docs] = await Promise.all([
-      supabase.from("services").select("*").eq("property_id", p.id).order("type"),
-      supabase.from("contacts").select("*").or(`property_id.eq.${p.id},is_global.eq.true`).order("category"),
-      supabase.from("zone_info").select("*").or(`property_id.eq.${p.id},is_global.eq.true`).order("category"),
-      supabase.from("documents").select("*").eq("property_id", p.id).order("category"),
+      supabase.from("cs_services").select("*").eq("property_id", p.id).order("type"),
+      supabase.from("cs_contacts").select("*").or(`property_id.eq.${p.id},is_global.eq.true`).order("category"),
+      supabase.from("cs_zone_info").select("*").or(`property_id.eq.${p.id},is_global.eq.true`).order("category"),
+      supabase.from("cs_documents").select("*").eq("property_id", p.id).order("category"),
     ]);
     setServices(svc.data || []);
     setContacts(cont.data || []);
@@ -65,7 +65,7 @@ export default function AdminPage() {
     ["bedrooms","bathrooms","sqft"].forEach(k => {
       updates[k] = parseInt(form.get(k) as string) || 0;
     });
-    const { error } = await supabase.from("properties").update(updates).eq("id", selectedProp.id);
+    const { error } = await supabase.from("cs_properties").update(updates).eq("id", selectedProp.id);
     setMsg(error ? `Error: ${error.message}` : "✅ Saved");
     if (!error) setSelectedProp({ ...selectedProp, ...updates });
     setSaving(false);
@@ -75,7 +75,7 @@ export default function AdminPage() {
   const addProperty = async () => {
     const name = prompt("Property name:");
     if (!name) return;
-    const { data, error } = await supabase.from("properties").insert({ name, address: "", type: "Condo", bedrooms: 0, bathrooms: 0, sqft: 0 }).select().single();
+    const { data, error } = await supabase.from("cs_properties").insert({ name, address: "", type: "Condo", bedrooms: 0, bathrooms: 0, sqft: 0 }).select().single();
     if (data) { setProperties([...properties, data]); loadPropertyData(data); }
     if (error) alert(error.message);
   };
@@ -83,52 +83,52 @@ export default function AdminPage() {
   // Generic CRUD helpers
   const addService = async () => {
     if (!selectedProp) return;
-    const { data } = await supabase.from("services").insert({ property_id: selectedProp.id, type: "CFE", provider: "" }).select().single();
+    const { data } = await supabase.from("cs_services").insert({ property_id: selectedProp.id, type: "CFE", provider: "" }).select().single();
     if (data) setServices([...services, data]);
   };
 
   const updateService = async (id: string, updates: Partial<Service>) => {
-    await supabase.from("services").update(updates).eq("id", id);
+    await supabase.from("cs_services").update(updates).eq("id", id);
     setServices(services.map(s => s.id === id ? { ...s, ...updates } : s));
   };
 
   const deleteService = async (id: string) => {
     if (!confirm("Delete?")) return;
-    await supabase.from("services").delete().eq("id", id);
+    await supabase.from("cs_services").delete().eq("id", id);
     setServices(services.filter(s => s.id !== id));
   };
 
   const addContact = async () => {
     if (!selectedProp) return;
-    const { data } = await supabase.from("contacts").insert({ property_id: selectedProp.id, category: "Maintenance", name: "", phone: "", is_global: false }).select().single();
+    const { data } = await supabase.from("cs_contacts").insert({ property_id: selectedProp.id, category: "Maintenance", name: "", phone: "", is_global: false }).select().single();
     if (data) setContacts([...contacts, data]);
   };
 
   const updateContact = async (id: string, updates: Partial<Contact>) => {
-    await supabase.from("contacts").update(updates).eq("id", id);
+    await supabase.from("cs_contacts").update(updates).eq("id", id);
     setContacts(contacts.map(c => c.id === id ? { ...c, ...updates } : c));
   };
 
   const deleteContact = async (id: string) => {
     if (!confirm("Delete?")) return;
-    await supabase.from("contacts").delete().eq("id", id);
+    await supabase.from("cs_contacts").delete().eq("id", id);
     setContacts(contacts.filter(c => c.id !== id));
   };
 
   const addZone = async () => {
     if (!selectedProp) return;
-    const { data } = await supabase.from("zone_info").insert({ property_id: selectedProp.id, category: "Restaurant", name: "", is_global: false }).select().single();
+    const { data } = await supabase.from("cs_zone_info").insert({ property_id: selectedProp.id, category: "Restaurant", name: "", is_global: false }).select().single();
     if (data) setZones([...zones, data]);
   };
 
   const updateZone = async (id: string, updates: Partial<ZoneInfo>) => {
-    await supabase.from("zone_info").update(updates).eq("id", id);
+    await supabase.from("cs_zone_info").update(updates).eq("id", id);
     setZones(zones.map(z => z.id === id ? { ...z, ...updates } : z));
   };
 
   const deleteZone = async (id: string) => {
     if (!confirm("Delete?")) return;
-    await supabase.from("zone_info").delete().eq("id", id);
+    await supabase.from("cs_zone_info").delete().eq("id", id);
     setZones(zones.filter(z => z.id !== id));
   };
 
@@ -140,13 +140,13 @@ export default function AdminPage() {
     if (upErr) { alert(upErr.message); return; }
     const { data: { publicUrl } } = supabase.storage.from("documents").getPublicUrl(path);
     const cat = prompt("Category (Legal/Tax/Utility/Insurance/Other):", "Legal") || "Other";
-    const { data } = await supabase.from("documents").insert({ property_id: selectedProp.id, name: file.name, category: cat, file_url: publicUrl }).select().single();
+    const { data } = await supabase.from("cs_documents").insert({ property_id: selectedProp.id, name: file.name, category: cat, file_url: publicUrl }).select().single();
     if (data) setDocuments([...documents, data]);
   };
 
   const deleteDoc = async (id: string) => {
     if (!confirm("Delete document?")) return;
-    await supabase.from("documents").delete().eq("id", id);
+    await supabase.from("cs_documents").delete().eq("id", id);
     setDocuments(documents.filter(d => d.id !== id));
   };
 
@@ -354,7 +354,7 @@ function OwnerTab({ propertyId }: { propertyId: string }) {
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    supabase.from("owners").select("*").eq("property_id", propertyId).then(({ data }) => setOwners(data || []));
+    supabase.from("cs_owners").select("*").eq("property_id", propertyId).then(({ data }) => setOwners(data || []));
   }, [propertyId]);
 
   const createOwner = async (e: React.FormEvent) => {
@@ -372,7 +372,7 @@ function OwnerTab({ propertyId }: { propertyId: string }) {
       else {
         setMsg(`✅ Owner created: ${email}`);
         setEmail(""); setName(""); setPassword("");
-        const { data: newOwners } = await supabase.from("owners").select("*").eq("property_id", propertyId);
+        const { data: newOwners } = await supabase.from("cs_owners").select("*").eq("property_id", propertyId);
         setOwners(newOwners || []);
       }
     } catch (err: any) { setMsg(`Error: ${err.message}`); }
