@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAdmin = async (u: User | null) => {
     if (!u) { setIsAdmin(false); return; }
     const { data } = await supabase
-      .from("owners")
+      .from("cs_owners")
       .select("id")
       .eq("user_id", u.id)
       .single();
