@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+:root {
+  --brand-red: #E53E3E;
+  --brand-gray: #A0AEC0;
+  --brand-dark: #718096;
+  --brand-navy: #2D3748;
+  --brand-cream: #FFFAF0;
+  --brand-gold: #D4A853;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.card-premium {
+  @apply bg-white rounded-xl shadow-md border border-gray-100 p-5 transition-all hover:shadow-lg;
+}
+
+.btn-primary {
+  @apply bg-brand-navy text-white px-6 py-3 rounded-lg font-medium hover:bg-opacity-90 transition-all;
+}
+
+.btn-danger {
+  @apply bg-brand-red text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all;
+}
+
+.section-title {
+  @apply text-2xl font-bold text-brand-navy mb-4 font-serif;
+}
+
+/* Premium scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: var(--brand-gray); border-radius: 3px; }
