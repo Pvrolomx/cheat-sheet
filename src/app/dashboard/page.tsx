@@ -36,7 +36,7 @@ export default function DashboardPage() {
     const load = async () => {
       // Get owner record to find property
       const { data: owner } = await supabase
-        .from("owners")
+        .from("cs_owners")
         .select("property_id")
         .eq("user_id", user.id)
         .single();
@@ -45,11 +45,11 @@ export default function DashboardPage() {
       const pid = owner.property_id;
 
       const [propRes, svcRes, contRes, zoneRes, docRes] = await Promise.all([
-        supabase.from("properties").select("*").eq("id", pid).single(),
-        supabase.from("services").select("*").eq("property_id", pid).order("type"),
-        supabase.from("contacts").select("*").or(`property_id.eq.${pid},is_global.eq.true`).order("category"),
-        supabase.from("zone_info").select("*").or(`property_id.eq.${pid},is_global.eq.true`).order("category"),
-        supabase.from("documents").select("*").eq("property_id", pid).order("category"),
+        supabase.from("cs_properties").select("*").eq("id", pid).single(),
+        supabase.from("cs_services").select("*").eq("property_id", pid).order("type"),
+        supabase.from("cs_contacts").select("*").or(`property_id.eq.${pid},is_global.eq.true`).order("category"),
+        supabase.from("cs_zone_info").select("*").or(`property_id.eq.${pid},is_global.eq.true`).order("category"),
+        supabase.from("cs_documents").select("*").eq("property_id", pid).order("category"),
       ]);
 
       setProperty(propRes.data);
