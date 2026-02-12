@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     if (authError) return NextResponse.json({ error: authError.message }, { status: 400 });
 
     // Create owner record
-    const { error: ownerError } = await supabaseAdmin.from("owners").insert({
+    const { error: ownerError } = await supabaseAdmin.from("cs_owners").insert({
       user_id: authData.user.id,
       property_id,
       name,
