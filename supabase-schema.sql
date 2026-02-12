@@ -1,8 +1,8 @@
--- CHEAT-SHEET: Supabase Schema
+-- CHEAT-SHEET: Supabase Schema (prefijo cs_)
 -- Run this in Supabase SQL Editor
 
 -- Properties
-CREATE TABLE IF NOT EXISTS properties (
+CREATE TABLE IF NOT EXISTS cs_properties (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL DEFAULT '',
   address TEXT DEFAULT '',
@@ -20,10 +20,10 @@ CREATE TABLE IF NOT EXISTS properties (
 );
 
 -- Owners (linked to auth.users)
-CREATE TABLE IF NOT EXISTS owners (
+CREATE TABLE IF NOT EXISTS cs_owners (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+  property_id UUID REFERENCES cs_properties(id) ON DELETE CASCADE,
   name TEXT NOT NULL DEFAULT '',
   email TEXT,
   phone TEXT,
@@ -31,9 +31,9 @@ CREATE TABLE IF NOT EXISTS owners (
 );
 
 -- Services
-CREATE TABLE IF NOT EXISTS services (
+CREATE TABLE IF NOT EXISTS cs_services (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+  property_id UUID REFERENCES cs_properties(id) ON DELETE CASCADE,
   type TEXT NOT NULL DEFAULT '',
   provider TEXT DEFAULT '',
   account_number TEXT,
@@ -45,9 +45,9 @@ CREATE TABLE IF NOT EXISTS services (
 );
 
 -- Documents
-CREATE TABLE IF NOT EXISTS documents (
+CREATE TABLE IF NOT EXISTS cs_documents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+  property_id UUID REFERENCES cs_properties(id) ON DELETE CASCADE,
   name TEXT NOT NULL DEFAULT '',
   category TEXT DEFAULT 'Other',
   file_url TEXT NOT NULL DEFAULT '',
@@ -55,9 +55,9 @@ CREATE TABLE IF NOT EXISTS documents (
 );
 
 -- Contacts
-CREATE TABLE IF NOT EXISTS contacts (
+CREATE TABLE IF NOT EXISTS cs_contacts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  property_id UUID REFERENCES properties(id) ON DELETE SET NULL,
+  property_id UUID REFERENCES cs_properties(id) ON DELETE SET NULL,
   category TEXT DEFAULT 'Maintenance',
   name TEXT NOT NULL DEFAULT '',
   specialty TEXT,
@@ -72,9 +72,9 @@ CREATE TABLE IF NOT EXISTS contacts (
 );
 
 -- Zone Info
-CREATE TABLE IF NOT EXISTS zone_info (
+CREATE TABLE IF NOT EXISTS cs_zone_info (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  property_id UUID REFERENCES properties(id) ON DELETE SET NULL,
+  property_id UUID REFERENCES cs_properties(id) ON DELETE SET NULL,
   category TEXT DEFAULT 'Restaurant',
   name TEXT NOT NULL DEFAULT '',
   description TEXT,
@@ -89,55 +89,55 @@ CREATE TABLE IF NOT EXISTS zone_info (
 );
 
 -- RLS Policies
-ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
-ALTER TABLE owners ENABLE ROW LEVEL SECURITY;
-ALTER TABLE services ENABLE ROW LEVEL SECURITY;
-ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
-ALTER TABLE contacts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE zone_info ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cs_properties ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cs_owners ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cs_services ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cs_documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cs_contacts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cs_zone_info ENABLE ROW LEVEL SECURITY;
 
--- Admin can do everything (users NOT in owners table)
-CREATE POLICY "Admin full access properties" ON properties FOR ALL
-  USING (NOT EXISTS (SELECT 1 FROM owners WHERE owners.user_id = auth.uid()));
+-- Admin can do everything (users NOT in cs_owners table)
+CREATE POLICY "Admin full access cs_properties" ON cs_properties FOR ALL
+  USING (NOT EXISTS (SELECT 1 FROM cs_owners WHERE cs_owners.user_id = auth.uid()));
 
-CREATE POLICY "Admin full access services" ON services FOR ALL
-  USING (NOT EXISTS (SELECT 1 FROM owners WHERE owners.user_id = auth.uid()));
+CREATE POLICY "Admin full access cs_services" ON cs_services FOR ALL
+  USING (NOT EXISTS (SELECT 1 FROM cs_owners WHERE cs_owners.user_id = auth.uid()));
 
-CREATE POLICY "Admin full access documents" ON documents FOR ALL
-  USING (NOT EXISTS (SELECT 1 FROM owners WHERE owners.user_id = auth.uid()));
+CREATE POLICY "Admin full access cs_documents" ON cs_documents FOR ALL
+  USING (NOT EXISTS (SELECT 1 FROM cs_owners WHERE cs_owners.user_id = auth.uid()));
 
-CREATE POLICY "Admin full access contacts" ON contacts FOR ALL
-  USING (NOT EXISTS (SELECT 1 FROM owners WHERE owners.user_id = auth.uid()));
+CREATE POLICY "Admin full access cs_contacts" ON cs_contacts FOR ALL
+  USING (NOT EXISTS (SELECT 1 FROM cs_owners WHERE cs_owners.user_id = auth.uid()));
 
-CREATE POLICY "Admin full access zone_info" ON zone_info FOR ALL
-  USING (NOT EXISTS (SELECT 1 FROM owners WHERE owners.user_id = auth.uid()));
+CREATE POLICY "Admin full access cs_zone_info" ON cs_zone_info FOR ALL
+  USING (NOT EXISTS (SELECT 1 FROM cs_owners WHERE cs_owners.user_id = auth.uid()));
 
-CREATE POLICY "Admin full access owners" ON owners FOR ALL
-  USING (NOT EXISTS (SELECT 1 FROM owners WHERE owners.user_id = auth.uid()));
+CREATE POLICY "Admin full access cs_owners" ON cs_owners FOR ALL
+  USING (NOT EXISTS (SELECT 1 FROM cs_owners WHERE cs_owners.user_id = auth.uid()));
 
 -- Owners can read their own property data
-CREATE POLICY "Owner read own property" ON properties FOR SELECT
-  USING (EXISTS (SELECT 1 FROM owners WHERE owners.user_id = auth.uid() AND owners.property_id = properties.id));
+CREATE POLICY "Owner read own cs_property" ON cs_properties FOR SELECT
+  USING (EXISTS (SELECT 1 FROM cs_owners WHERE cs_owners.user_id = auth.uid() AND cs_owners.property_id = cs_properties.id));
 
-CREATE POLICY "Owner read own services" ON services FOR SELECT
-  USING (EXISTS (SELECT 1 FROM owners WHERE owners.user_id = auth.uid() AND owners.property_id = services.property_id));
+CREATE POLICY "Owner read own cs_services" ON cs_services FOR SELECT
+  USING (EXISTS (SELECT 1 FROM cs_owners WHERE cs_owners.user_id = auth.uid() AND cs_owners.property_id = cs_services.property_id));
 
-CREATE POLICY "Owner read own documents" ON documents FOR SELECT
-  USING (EXISTS (SELECT 1 FROM owners WHERE owners.user_id = auth.uid() AND owners.property_id = documents.property_id));
+CREATE POLICY "Owner read own cs_documents" ON cs_documents FOR SELECT
+  USING (EXISTS (SELECT 1 FROM cs_owners WHERE cs_owners.user_id = auth.uid() AND cs_owners.property_id = cs_documents.property_id));
 
-CREATE POLICY "Owner read contacts" ON contacts FOR SELECT
+CREATE POLICY "Owner read cs_contacts" ON cs_contacts FOR SELECT
   USING (
     is_global = true OR
-    EXISTS (SELECT 1 FROM owners WHERE owners.user_id = auth.uid() AND owners.property_id = contacts.property_id)
+    EXISTS (SELECT 1 FROM cs_owners WHERE cs_owners.user_id = auth.uid() AND cs_owners.property_id = cs_contacts.property_id)
   );
 
-CREATE POLICY "Owner read zone" ON zone_info FOR SELECT
+CREATE POLICY "Owner read cs_zone" ON cs_zone_info FOR SELECT
   USING (
     is_global = true OR
-    EXISTS (SELECT 1 FROM owners WHERE owners.user_id = auth.uid() AND owners.property_id = zone_info.property_id)
+    EXISTS (SELECT 1 FROM cs_owners WHERE cs_owners.user_id = auth.uid() AND cs_owners.property_id = cs_zone_info.property_id)
   );
 
-CREATE POLICY "Owner read own record" ON owners FOR SELECT
+CREATE POLICY "Owner read own cs_record" ON cs_owners FOR SELECT
   USING (user_id = auth.uid());
 
 -- Storage bucket for documents
