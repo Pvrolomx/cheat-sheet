@@ -18,6 +18,8 @@ export default function DashboardPage() {
   const [zones, setZones] = useState<ZoneInfo[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [ownerName, setOwnerName] = useState("");
+  const [showWelcome, setShowWelcome] = useState(false);
   const [showChangePw, setShowChangePw] = useState(false);
   const [newPw, setNewPw] = useState("");
   const [pwMsg, setPwMsg] = useState("");
@@ -50,12 +52,13 @@ export default function DashboardPage() {
       // Get owner record to find property
       const { data: owner } = await supabase
         .from("cs_owners")
-        .select("property_id")
+        .select("property_id, name")
         .eq("user_id", user.id)
         .single();
 
       if (!owner) { setDataLoading(false); return; }
       const pid = owner.property_id;
+      if (owner.name) setOwnerName(owner.name);
 
       const [propRes, svcRes, contRes, zoneRes, docRes] = await Promise.all([
         supabase.from("cs_properties").select("*").eq("id", pid).single(),
@@ -71,6 +74,13 @@ export default function DashboardPage() {
       setZones(zoneRes.data || []);
       setDocuments(docRes.data || []);
       setDataLoading(false);
+
+      // Show welcome message only once
+      const welcomeKey = `cs_welcome_${user.id}`;
+      if (!localStorage.getItem(welcomeKey)) {
+        setTimeout(() => setShowWelcome(true), 500);
+        localStorage.setItem(welcomeKey, "true");
+      }
     };
     load();
   }, [user]);
@@ -128,6 +138,27 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
+
+        {/* Welcome Modal */}
+        {showWelcome && property && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowWelcome(false)}>
+            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center" onClick={e => e.stopPropagation()}>
+              <div className="text-5xl mb-4">🎉</div>
+              <h2 className="text-2xl font-serif font-bold text-brand-navy mb-2">
+                {lang === "en" ? "Congratulations" : "Felicidades"}{ownerName ? `, ${ownerName}` : ""}!
+              </h2>
+              <p className="text-brand-dark mb-4">
+                {lang === "en"
+                  ? `Welcome to your personal property portal for ${property.name}. Everything you need — services, contacts, documents, and more — is right here.`
+                  : `Bienvenido a tu portal personal para ${property.name}. Todo lo que necesitas — servicios, contactos, documentos y más — está aquí.`
+                }
+              </p>
+              <button onClick={() => setShowWelcome(false)} className="btn-primary px-8">
+                {lang === "en" ? "Explore My Property" : "Explorar Mi Propiedad"}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Change Password Panel */}
         {showChangePw && (
