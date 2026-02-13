@@ -5,7 +5,7 @@ import { LangProvider } from "@/lib/LangContext";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
-  title: "Property Concierge | Sergio Real Estate",
+  title: "Property Concierge | Expat Advisor MX",
   description: "Your personal property information hub in Puerto Vallarta",
   manifest: "/manifest.json",
   icons: { apple: "/icon-192.png" },
