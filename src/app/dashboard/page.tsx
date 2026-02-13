@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [ownerName, setOwnerName] = useState("");
+  const [ownerPropertyId, setOwnerPropertyId] = useState("");
   const [activeSection, setActiveSection] = useState("");
   const [showWelcome, setShowWelcome] = useState(false);
   const [showChangePw, setShowChangePw] = useState(false);
@@ -32,6 +33,26 @@ export default function DashboardPage() {
     setPwMsg(lang === "en" ? "✅ Password updated!" : "✅ Contraseña actualizada!");
     setNewPw("");
     setTimeout(() => { setShowChangePw(false); setPwMsg(""); }, 2000);
+  };
+
+  const ownerUploadDoc = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!ownerPropertyId || !e.target.files?.length) return;
+    const file = e.target.files[0];
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) { alert("File too large. Max 5MB."); return; }
+    const path = ownerPropertyId + "/" + Date.now() + "-" + file.name;
+    const { error: upErr } = await supabase.storage.from("documents").upload(path, file);
+    if (upErr) { alert(upErr.message); return; }
+    const { data: { publicUrl } } = supabase.storage.from("documents").getPublicUrl(path);
+    const cat = prompt("Category (Legal/Tax/Utility/Insurance/Other):", "Legal") || "Other";
+    const { data } = await supabase.from("cs_documents").insert({ property_id: ownerPropertyId, name: file.name, category: cat, file_url: publicUrl }).select().single();
+    if (data) setDocuments([...documents, data]);
+  };
+
+  const ownerDeleteDoc = async (id: string) => {
+    if (!confirm("Delete this document?")) return;
+    await supabase.from("cs_documents").delete().eq("id", id);
+    setDocuments(documents.filter(d => d.id !== id));
   };
 
   const [installPrompt, setInstallPrompt] = useState<any>(null);
@@ -60,6 +81,7 @@ export default function DashboardPage() {
       if (!owner) { setDataLoading(false); return; }
       const pid = owner.property_id;
       if (owner.name) setOwnerName(owner.name);
+      setOwnerPropertyId(pid);
 
       const [propRes, svcRes, contRes, zoneRes, docRes] = await Promise.all([
         supabase.from("cs_properties").select("*").eq("id", pid).single(),
@@ -307,7 +329,13 @@ export default function DashboardPage() {
 
         {/* SECTION: DOCUMENTS */}
         {activeSection === "documents" && <section id="documents">
-          <h2 className="section-title">📄 {t.documents.title}</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="section-title">📄 {t.documents.title}</h2>
+            <label className="cursor-pointer text-xs bg-brand-navy text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all">
+              📎 {lang === "en" ? "Upload" : "Subir"}
+              <input type="file" className="hidden" onChange={ownerUploadDoc} />
+            </label>
+          </div>
           {Object.keys(groupedDocs).length === 0 ? <p className="text-brand-dark text-sm">{t.common.noData}</p> : (
             <div className="space-y-4">
               {Object.entries(groupedDocs).map(([cat, docs]) => (
@@ -317,9 +345,12 @@ export default function DashboardPage() {
                     {docs.map(d => (
                       <div key={d.id} className="card-premium flex items-center justify-between">
                         <span className="text-sm font-medium text-brand-navy">{d.name}</span>
-                        <a href={d.file_url} target="_blank" rel="noopener" download className="text-xs bg-brand-navy text-white px-4 py-1.5 rounded-lg hover:bg-opacity-90 transition-all">
-                          {t.documents.download} ↓
-                        </a>
+                        <div className="flex gap-2">
+                          <a href={d.file_url} target="_blank" rel="noopener" download className="text-xs bg-brand-navy text-white px-4 py-1.5 rounded-lg hover:bg-opacity-90 transition-all">
+                            {t.documents.download} ↓
+                          </a>
+                          <button onClick={() => ownerDeleteDoc(d.id)} className="text-xs text-red-400 hover:text-red-600 px-2 py-1.5">✕</button>
+                        </div>
                       </div>
                     ))}
                   </div>
