@@ -137,7 +137,7 @@ export default function DashboardPage() {
       <div className="relative h-48 md:h-56 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${property.photo_url || "https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=1920&q=80"})` }}
+          style={{ backgroundImage: `url(${property.photo_url || "/hero-pv.jpg"})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/90 via-brand-navy/40 to-transparent" />
 
