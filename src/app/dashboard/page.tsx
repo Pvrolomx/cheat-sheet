@@ -19,7 +19,7 @@ export default function DashboardPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [ownerName, setOwnerName] = useState("");
-  const [activeSection, setActiveSection] = useState("property");
+  const [activeSection, setActiveSection] = useState("");
   const [showWelcome, setShowWelcome] = useState(false);
   const [showChangePw, setShowChangePw] = useState(false);
   const [newPw, setNewPw] = useState("");
@@ -121,7 +121,7 @@ export default function DashboardPage() {
 
         {/* Top bar */}
         <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-4">
-          <img src="/logo_small.png" alt="Expat Advisor MX" className="h-10 w-auto" />
+          <div />
           <div className="flex items-center gap-2">
             {installPrompt && (
               <button onClick={() => installPrompt.prompt()} className="text-white/80 hover:text-white text-xs bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
@@ -180,7 +180,7 @@ export default function DashboardPage() {
 
       {/* Section Nav - Card Style */}
       <div className="max-w-5xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
           {[
             { id: "property", icon: "🏠", label: t.nav.myProperty },
             { id: "services", icon: "⚡", label: t.nav.services },
@@ -189,7 +189,7 @@ export default function DashboardPage() {
             { id: "neighborhood", icon: "🗺️", label: t.nav.neighborhood },
             { id: "documents", icon: "📄", label: t.nav.documents },
           ].map(n => (
-            <button key={n.id} onClick={() => setActiveSection(n.id)} className={`flex flex-col items-center justify-center p-4 rounded-xl transition-all ${activeSection === n.id ? "bg-brand-navy text-white shadow-lg scale-105" : "bg-white text-brand-navy hover:bg-brand-navy/5 shadow-sm"}`}>
+            <button key={n.id} onClick={() => setActiveSection(activeSection === n.id ? "" : n.id)} className={`flex flex-col items-center justify-center p-4 rounded-xl transition-all ${activeSection === n.id ? "bg-brand-navy text-white shadow-lg scale-105" : "bg-white text-brand-navy hover:bg-brand-navy/5 shadow-sm"}`}>
               <span className="text-2xl mb-1">{n.icon}</span>
               <span className="text-xs font-medium leading-tight text-center">{n.label}</span>
             </button>
