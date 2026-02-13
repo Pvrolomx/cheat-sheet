@@ -62,7 +62,7 @@ export default function LoginPage() {
         <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-8">
           {/* Logo */}
           <div className="flex justify-center mb-6">
-            <span className="text-3xl font-extrabold tracking-wide" style={{color: "#D4A853"}}>EXPAT ADVISOR MX</span>
+            <img src="/logo_banner.png" alt="Expat Advisor MX" className="h-20 w-auto" />
           </div>
 
           <h1 className="text-3xl font-serif font-bold text-brand-navy text-center mb-1">
