@@ -148,6 +148,8 @@ export default function AdminPage() {
   const uploadDoc = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!selectedProp || !e.target.files?.length) return;
     const file = e.target.files[0];
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+    if (file.size > MAX_SIZE) { alert(`File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Maximum is 5MB.`); return; }
     const path = `${selectedProp.id}/${Date.now()}-${file.name}`;
     const { error: upErr } = await supabase.storage.from("documents").upload(path, file);
     if (upErr) { alert(upErr.message); return; }
