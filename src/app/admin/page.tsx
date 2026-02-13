@@ -231,14 +231,14 @@ export default function AdminPage() {
                   <Input label="Name" name="name" defaultValue={selectedProp.name} />
                   <Input label="Address" name="address" defaultValue={selectedProp.address} />
                   <Select label="Type" name="type" defaultValue={selectedProp.type} options={["Condo","House","Lot","Villa"]} />
-                  <Input label="Photo URL" name="photo_url" defaultValue={selectedProp.photo_url || ""} />
+                  <Input label="Property Image URL" name="photo_url" defaultValue={selectedProp.photo_url || ""} />
                   <Input label="Bedrooms" name="bedrooms" type="number" defaultValue={selectedProp.bedrooms} />
                   <Input label="Bathrooms" name="bathrooms" type="number" defaultValue={selectedProp.bathrooms} />
                   <Input label="Sq Ft" name="sqft" type="number" defaultValue={selectedProp.sqft} />
                   <Input label="Closing Date" name="closing_date" type="date" defaultValue={selectedProp.closing_date || ""} />
-                  <Input label="Fideicomiso" name="fideicomiso" defaultValue={selectedProp.fideicomiso || ""} />
-                  <Input label="Fideicomiso Bank" name="fideicomiso_bank" defaultValue={selectedProp.fideicomiso_bank || ""} />
-                  <Input label="Fideicomiso Number" name="fideicomiso_number" defaultValue={selectedProp.fideicomiso_number || ""} />
+                  <Input label="Deed / Escritura" name="fideicomiso" defaultValue={selectedProp.fideicomiso || ""} />
+                  <Input label="Deed Bank" name="fideicomiso_bank" defaultValue={selectedProp.fideicomiso_bank || ""} />
+                  <Input label="Deed Number" name="fideicomiso_number" defaultValue={selectedProp.fideicomiso_number || ""} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-brand-dark mb-1">Notes</label>
@@ -350,7 +350,7 @@ export default function AdminPage() {
 
             {/* Preview button */}
             <div className="mt-8 text-center">
-              <button onClick={() => window.open("/dashboard", "_blank")} className="text-sm text-brand-dark hover:text-brand-navy underline">👁️ Preview as owner</button>
+              
             </div>
           </div>
         )}
