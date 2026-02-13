@@ -18,6 +18,19 @@ export default function DashboardPage() {
   const [zones, setZones] = useState<ZoneInfo[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [showChangePw, setShowChangePw] = useState(false);
+  const [newPw, setNewPw] = useState("");
+  const [pwMsg, setPwMsg] = useState("");
+
+  const changePassword = async () => {
+    if (newPw.length < 6) { setPwMsg(lang === "en" ? "Min 6 characters" : "Mínimo 6 caracteres"); return; }
+    const { error } = await supabase.auth.updateUser({ password: newPw });
+    if (error) { setPwMsg(error.message); return; }
+    setPwMsg(lang === "en" ? "✅ Password updated!" : "✅ Contraseña actualizada!");
+    setNewPw("");
+    setTimeout(() => { setShowChangePw(false); setPwMsg(""); }, 2000);
+  };
+
   const [installPrompt, setInstallPrompt] = useState<any>(null);
 
   useEffect(() => {
@@ -107,11 +120,24 @@ export default function DashboardPage() {
             <button onClick={() => setLang(lang === "en" ? "es" : "en")} className="text-white/80 hover:text-white text-xs bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
               {lang === "en" ? "🇲🇽 ES" : "🇺🇸 EN"}
             </button>
+            <button onClick={() => setShowChangePw(!showChangePw)} className="text-white/80 hover:text-white text-xs bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
+              ⚙️
+            </button>
             <button onClick={signOut} className="text-white/80 hover:text-white text-xs bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
               {t.nav.logout}
             </button>
           </div>
         </div>
+
+        {/* Change Password Panel */}
+        {showChangePw && (
+          <div className="absolute top-16 right-4 z-30 bg-white rounded-xl shadow-lg p-4 w-72">
+            <p className="text-sm font-medium text-brand-navy mb-2">{lang === "en" ? "Change Password" : "Cambiar Contraseña"}</p>
+            <input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder={lang === "en" ? "New password (min 6)" : "Nueva contraseña (mín 6)"} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 mb-2" />
+            <button onClick={changePassword} className="w-full bg-brand-navy text-white text-sm py-2 rounded-lg hover:bg-brand-navy/90">{lang === "en" ? "Update" : "Actualizar"}</button>
+            {pwMsg && <p className="text-xs mt-2 text-center text-brand-navy">{pwMsg}</p>}
+          </div>
+        )}
 
         {/* Property info overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-6">
