@@ -97,7 +97,7 @@ export default function DashboardPage() {
 
         {/* Top bar */}
         <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-4">
-          <span className="text-lg font-extrabold tracking-wide" style={{color: "#D4A853"}}>EXPAT ADVISOR MX</span>
+          <img src="/logo_small.png" alt="Expat Advisor MX" className="h-10 w-auto" />
           <div className="flex items-center gap-2">
             {installPrompt && (
               <button onClick={() => installPrompt.prompt()} className="text-white/80 hover:text-white text-xs bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
@@ -273,7 +273,7 @@ export default function DashboardPage() {
 
       {/* Footer */}
       <footer className="bg-brand-navy text-white/60 text-center py-6 mt-12">
-        <span className="text-sm font-extrabold tracking-wide opacity-60" style={{color: "#D4A853"}}>EXPAT ADVISOR MX</span>
+        <img src="/logo_small.png" alt="Expat Advisor MX" className="h-8 w-auto mx-auto mb-2 opacity-60" />
         <p className="text-xs">Hecho por duendes.app 2026</p>
       </footer>
     </div>
