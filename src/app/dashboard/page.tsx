@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [ownerName, setOwnerName] = useState("");
+  const [activeSection, setActiveSection] = useState("property");
   const [showWelcome, setShowWelcome] = useState(false);
   const [showChangePw, setShowChangePw] = useState(false);
   const [newPw, setNewPw] = useState("");
@@ -111,7 +112,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-brand-cream">
       {/* Hero */}
-      <div className="relative h-72 md:h-96 overflow-hidden">
+      <div className="relative h-48 md:h-56 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${property.photo_url || "https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=1920&q=80"})` }}
@@ -177,28 +178,29 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Quick nav */}
-      <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 flex gap-1 overflow-x-auto py-2 text-xs font-medium">
+      {/* Section Nav - Card Style */}
+      <div className="max-w-5xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
           {[
-            { href: "#property", label: `🏠 ${t.nav.myProperty}` },
-            { href: "#services", label: `⚡ ${t.nav.services}` },
-            { href: "#emergency", label: `🚨 ${t.nav.emergency}` },
-            { href: "#contacts", label: `📋 ${t.nav.contacts}` },
-            { href: "#neighborhood", label: `🗺️ ${t.nav.neighborhood}` },
-            { href: "#documents", label: `📄 ${t.nav.documents}` },
+            { id: "property", icon: "🏠", label: t.nav.myProperty },
+            { id: "services", icon: "⚡", label: t.nav.services },
+            { id: "emergency", icon: "🚨", label: t.nav.emergency },
+            { id: "contacts", icon: "📋", label: t.nav.contacts },
+            { id: "neighborhood", icon: "🗺️", label: t.nav.neighborhood },
+            { id: "documents", icon: "📄", label: t.nav.documents },
           ].map(n => (
-            <a key={n.href} href={n.href} className="whitespace-nowrap px-3 py-1.5 rounded-full bg-brand-navy/5 hover:bg-brand-navy/10 text-brand-navy transition-all">
-              {n.label}
-            </a>
+            <button key={n.id} onClick={() => setActiveSection(n.id)} className={`flex flex-col items-center justify-center p-4 rounded-xl transition-all ${activeSection === n.id ? "bg-brand-navy text-white shadow-lg scale-105" : "bg-white text-brand-navy hover:bg-brand-navy/5 shadow-sm"}`}>
+              <span className="text-2xl mb-1">{n.icon}</span>
+              <span className="text-xs font-medium leading-tight text-center">{n.label}</span>
+            </button>
           ))}
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-12">
+      <div className="max-w-5xl mx-auto px-4 pb-8">
 
         {/* SECTION: MY PROPERTY */}
-        <section id="property">
+        {activeSection === "property" && <section id="property">
           <h2 className="section-title">🏠 {t.property.title}</h2>
           <div className="card-premium">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -220,10 +222,10 @@ export default function DashboardPage() {
             )}
             {property.notes && <p className="text-sm text-brand-dark mt-2 italic">{property.notes}</p>}
           </div>
-        </section>
+        </section>}
 
         {/* SECTION: SERVICES */}
-        <section id="services">
+        {activeSection === "services" && <section id="services">
           <h2 className="section-title">⚡ {t.services.title}</h2>
           {services.length === 0 ? <p className="text-brand-dark text-sm">{t.common.noData}</p> : (
             <div className="grid md:grid-cols-2 gap-4">
@@ -245,10 +247,10 @@ export default function DashboardPage() {
               ))}
             </div>
           )}
-        </section>
+        </section>}
 
         {/* SECTION: EMERGENCY */}
-        <section id="emergency">
+        {activeSection === "emergency" && <section id="emergency">
           <h2 className="section-title">🚨 {t.emergency.title}</h2>
           <a href="tel:911" className="block w-full bg-brand-red text-white text-center py-5 rounded-xl text-xl font-bold shadow-lg hover:bg-red-600 transition-all mb-6">
             📞 {t.emergency.call911}
@@ -261,10 +263,10 @@ export default function DashboardPage() {
               ))}
             </div>
           )}
-        </section>
+        </section>}
 
         {/* SECTION: CONTACTS */}
-        <section id="contacts">
+        {activeSection === "contacts" && <section id="contacts">
           <h2 className="section-title">📋 {t.contacts.title}</h2>
           {otherContacts.length === 0 ? <p className="text-brand-dark text-sm">{t.common.noData}</p> : (
             <div className="grid md:grid-cols-2 gap-4">
@@ -273,10 +275,10 @@ export default function DashboardPage() {
               ))}
             </div>
           )}
-        </section>
+        </section>}
 
         {/* SECTION: NEIGHBORHOOD */}
-        <section id="neighborhood">
+        {activeSection === "neighborhood" && <section id="neighborhood">
           <h2 className="section-title">🗺️ {t.zone.title}</h2>
           {Object.keys(groupedZones).length === 0 ? <p className="text-brand-dark text-sm">{t.common.noData}</p> : (
             <div className="space-y-6">
@@ -301,10 +303,10 @@ export default function DashboardPage() {
               ))}
             </div>
           )}
-        </section>
+        </section>}
 
         {/* SECTION: DOCUMENTS */}
-        <section id="documents">
+        {activeSection === "documents" && <section id="documents">
           <h2 className="section-title">📄 {t.documents.title}</h2>
           {Object.keys(groupedDocs).length === 0 ? <p className="text-brand-dark text-sm">{t.common.noData}</p> : (
             <div className="space-y-4">
@@ -325,7 +327,7 @@ export default function DashboardPage() {
               ))}
             </div>
           )}
-        </section>
+        </section>}
       </div>
 
       {/* Footer */}
