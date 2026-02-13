@@ -12,12 +12,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
       router.push(isAdmin ? "/admin" : "/dashboard");
     }
   }, [user, isAdmin, loading, router]);
+
+  const handleForgot = async () => {
+    if (!email) { setError(lang === "en" ? "Enter your email first" : "Ingresa tu email primero"); return; }
+    const { createClient } = await import("@supabase/supabase-js");
+    const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+    const { error: err } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + "/reset-password" });
+    if (err) setError(err.message);
+    else setResetSent(true);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,6 +116,14 @@ export default function LoginPage() {
               {submitting ? "..." : t.login.submit}
             </button>
           </form>
+
+          {resetSent ? (
+            <p className="text-center text-green-600 text-sm mt-4">{lang === "en" ? "Password reset email sent. Check your inbox." : "Email de recuperación enviado. Revisa tu bandeja."}</p>
+          ) : (
+            <button onClick={handleForgot} className="text-center text-brand-dark/60 hover:text-brand-navy text-sm mt-4 block w-full">
+              {lang === "en" ? "Forgot password?" : "¿Olvidaste tu contraseña?"}
+            </button>
+          )}
         </div>
 
         {/* Footer */}
