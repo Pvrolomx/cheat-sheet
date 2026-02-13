@@ -161,7 +161,7 @@ export default function AdminPage() {
       {/* Header */}
       <header className="bg-brand-navy text-white py-4 px-6 flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <img src="/logo-sergio.png" alt="Logo" className="h-8 w-auto" />
+          <span className="text-lg font-extrabold tracking-wide" style={{color: "#D4A853"}}>EXPAT ADVISOR MX</span>
           <h1 className="text-lg font-serif font-bold">Admin Panel</h1>
         </div>
         <div className="flex items-center gap-2">
