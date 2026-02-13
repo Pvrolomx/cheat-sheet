@@ -80,6 +80,19 @@ export default function AdminPage() {
     if (error) alert(error.message);
   };
 
+  const deleteProperty = async (id: string) => {
+    if (!confirm("Delete this property and all its data? This cannot be undone.")) return;
+    await supabase.from("cs_services").delete().eq("property_id", id);
+    await supabase.from("cs_contacts").delete().eq("property_id", id);
+    await supabase.from("cs_zone_info").delete().eq("property_id", id);
+    await supabase.from("cs_documents").delete().eq("property_id", id);
+    await supabase.from("cs_owners").delete().eq("property_id", id);
+    const { error } = await supabase.from("cs_properties").delete().eq("id", id);
+    if (error) { alert(error.message); return; }
+    setProperties(properties.filter(p => p.id !== id));
+    setSelectedProp(null);
+  };
+
   // Generic CRUD helpers
   const addService = async () => {
     if (!selectedProp) return;
@@ -180,18 +193,24 @@ export default function AdminPage() {
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {properties.map(p => (
-                <button key={p.id} onClick={() => loadPropertyData(p)} className="card-premium text-left hover:border-brand-navy/30">
-                  <h3 className="font-semibold text-brand-navy">{p.name || "Untitled"}</h3>
-                  <p className="text-xs text-brand-dark mt-1">{p.address || "No address"}</p>
-                  <p className="text-xs text-brand-dark mt-1">{p.type} · {p.bedrooms}bd/{p.bathrooms}ba</p>
-                </button>
+                <div key={p.id} className="card-premium text-left hover:border-brand-navy/30 relative">
+                  <button onClick={() => loadPropertyData(p)} className="w-full text-left">
+                    <h3 className="font-semibold text-brand-navy">{p.name || "Untitled"}</h3>
+                    <p className="text-xs text-brand-dark mt-1">{p.address || "No address"}</p>
+                    <p className="text-xs text-brand-dark mt-1">{p.type} · {p.bedrooms}bd/{p.bathrooms}ba</p>
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); deleteProperty(p.id); }} className="absolute top-2 right-2 text-xs text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded">✕</button>
+                </div>
               ))}
             </div>
           </div>
         ) : (
           /* Property Editor */
           <div>
-            <button onClick={() => setSelectedProp(null)} className="text-sm text-brand-dark hover:text-brand-navy mb-4 inline-block">← {t.common.back} to properties</button>
+            <div className="flex justify-between items-center mb-4">
+              <button onClick={() => setSelectedProp(null)} className="text-sm text-brand-dark hover:text-brand-navy inline-block">← {t.common.back} to properties</button>
+              <button onClick={() => deleteProperty(selectedProp.id)} className="text-xs text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg">Delete Property</button>
+            </div>
             <h2 className="section-title">{selectedProp.name || "Untitled Property"}</h2>
 
             {msg && <div className="bg-green-50 text-green-700 px-4 py-2 rounded-lg mb-4 text-sm">{msg}</div>}
