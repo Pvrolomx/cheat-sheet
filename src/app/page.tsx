@@ -52,7 +52,7 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-brand-navy" />
       <div className="absolute inset-0 opacity-20"
         style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=1920&q=80')",
+          backgroundImage: "url('/hero-pv.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
