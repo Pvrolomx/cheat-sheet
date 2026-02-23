@@ -405,6 +405,7 @@ function OwnerTab({ propertyId }: { propertyId: string }) {
                   <p className="font-medium text-brand-navy text-sm">{o.name}</p>
                   <p className="text-xs text-brand-dark">{o.email}</p>
                 </div>
+                <a href="/dashboard" target="_blank" rel="noopener" className="text-xs bg-brand-navy text-white px-3 py-1.5 rounded-lg hover:bg-opacity-90 transition-all">View Dashboard →</a>
               </div>
             ))}
           </div>
