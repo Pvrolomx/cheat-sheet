@@ -25,6 +25,9 @@ export default function DashboardPage() {
   const [showChangePw, setShowChangePw] = useState(false);
   const [newPw, setNewPw] = useState("");
   const [pwMsg, setPwMsg] = useState("");
+  const [ownerProperties, setOwnerProperties] = useState<{property_id: string; name: string}[]>([]);
+  const [propertyNames, setPropertyNames] = useState<Record<string, string>>({});
+  const [hasMultipleProperties, setHasMultipleProperties] = useState(false);
 
   const changePassword = async () => {
     if (newPw.length < 6) { setPwMsg(lang === "en" ? "Min 6 characters" : "Mínimo 6 caracteres"); return; }
@@ -71,46 +74,124 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user) return;
     const load = async () => {
-      // Get owner record to find property
-      const { data: owner } = await supabase
+      // Get ALL owner records for this user
+      const { data: ownerRecords } = await supabase
         .from("cs_owners")
         .select("property_id, name")
-        .eq("user_id", user.id)
-        .single();
+        .eq("user_id", user.id);
 
-      if (!owner) { setDataLoading(false); return; }
-      const pid = owner.property_id;
-      if (owner.name) setOwnerName(owner.name);
-      setOwnerPropertyId(pid);
+      if (!ownerRecords || ownerRecords.length === 0) { setDataLoading(false); return; }
+      if (ownerRecords[0].name) setOwnerName(ownerRecords[0].name);
 
-      const [propRes, svcRes, contRes, zoneRes, docRes] = await Promise.all([
-        supabase.from("cs_properties").select("*").eq("id", pid).single(),
-        supabase.from("cs_services").select("*").eq("property_id", pid).order("type"),
-        supabase.from("cs_contacts").select("*").or(`property_id.eq.${pid},is_global.eq.true`).order("category"),
-        supabase.from("cs_zone_info").select("*").or(`property_id.eq.${pid},is_global.eq.true`).order("category"),
-        supabase.from("cs_documents").select("*").eq("property_id", pid).order("category"),
-      ]);
-
-      setProperty(propRes.data);
-      setServices(svcRes.data || []);
-      setContacts(contRes.data || []);
-      setZones(zoneRes.data || []);
-      setDocuments(docRes.data || []);
-      setDataLoading(false);
-
-      // Show welcome message only once
-      const welcomeKey = `cs_welcome_${user.id}`;
-      if (!localStorage.getItem(welcomeKey)) {
-        setTimeout(() => setShowWelcome(true), 500);
-        localStorage.setItem(welcomeKey, "true");
+      // If multiple properties, fetch their names and show selector
+      if (ownerRecords.length > 1) {
+        setHasMultipleProperties(true);
+        const propIds = ownerRecords.map(o => o.property_id);
+        const { data: props } = await supabase.from("cs_properties").select("id, name").in("id", propIds);
+        const names: Record<string, string> = {};
+        (props || []).forEach(p => { names[p.id] = p.name; });
+        setPropertyNames(names);
+        setOwnerProperties(ownerRecords);
+        setDataLoading(false);
+        return;
       }
+
+      // Single property — load directly
+      const pid = ownerRecords[0].property_id;
+      setOwnerPropertyId(pid);
+      await loadPropertyData(pid);
     };
     load();
   }, [user]);
 
+  const loadPropertyData = async (pid: string) => {
+    setOwnerPropertyId(pid);
+    const [propRes, svcRes, contRes, zoneRes, docRes] = await Promise.all([
+      supabase.from("cs_properties").select("*").eq("id", pid).single(),
+      supabase.from("cs_services").select("*").eq("property_id", pid).order("type"),
+      supabase.from("cs_contacts").select("*").or(`property_id.eq.${pid},is_global.eq.true`).order("category"),
+      supabase.from("cs_zone_info").select("*").or(`property_id.eq.${pid},is_global.eq.true`).order("category"),
+      supabase.from("cs_documents").select("*").eq("property_id", pid).order("category"),
+    ]);
+
+    setProperty(propRes.data);
+    setServices(svcRes.data || []);
+    setContacts(contRes.data || []);
+    setZones(zoneRes.data || []);
+    setDocuments(docRes.data || []);
+    setDataLoading(false);
+    setOwnerProperties([]);
+    setActiveSection("");
+
+    // Show welcome message only once
+    const welcomeKey = `cs_welcome_${pid}`;
+    if (typeof window !== "undefined" && !localStorage.getItem(welcomeKey)) {
+      setTimeout(() => setShowWelcome(true), 500);
+      localStorage.setItem(welcomeKey, "true");
+    }
+  };
+
+  const backToSelector = async () => {
+    setProperty(null);
+    setDataLoading(true);
+    const { data: ownerRecords } = await supabase.from("cs_owners").select("property_id, name").eq("user_id", user!.id);
+    if (!ownerRecords) return;
+    const propIds = ownerRecords.map(o => o.property_id);
+    const { data: props } = await supabase.from("cs_properties").select("id, name").in("id", propIds);
+    const names: Record<string, string> = {};
+    (props || []).forEach(p => { names[p.id] = p.name; });
+    setPropertyNames(names);
+    setOwnerProperties(ownerRecords);
+    setDataLoading(false);
+  };
+
   if (loading || dataLoading) return (
     <div className="min-h-screen flex items-center justify-center bg-brand-cream">
       <div className="animate-pulse text-brand-navy text-lg">{t.common.loading}</div>
+    </div>
+  );
+
+  if (!property && ownerProperties.length > 0) return (
+    <div className="min-h-screen bg-brand-cream">
+      <div className="relative h-48 md:h-56 overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url("/hero-pv.jpg")` }} />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/90 via-brand-navy/40 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-4">
+          <div />
+          <div className="flex items-center gap-2">
+            <button onClick={() => setLang(lang === "en" ? "es" : "en")} className="text-white/80 hover:text-white text-xs bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
+              {lang === "en" ? "🇲🇽 ES" : "🇺🇸 EN"}
+            </button>
+            <button onClick={signOut} className="text-white/80 hover:text-white text-xs bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
+              {t.nav.logout}
+            </button>
+          </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 p-6">
+          <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-1">
+            {lang === "en" ? "Welcome" : "Bienvenido"}{ownerName ? `, ${ownerName}` : ""}
+          </h1>
+          <p className="text-white/80 text-sm">{lang === "en" ? "Select a property to view" : "Selecciona una propiedad"}</p>
+        </div>
+      </div>
+      <div className="max-w-lg mx-auto px-4 py-8">
+        <div className="space-y-4">
+          {ownerProperties.map(o => (
+            <button key={o.property_id} onClick={() => { setDataLoading(true); loadPropertyData(o.property_id); }} className="w-full card-premium flex items-center gap-4 hover:shadow-lg transition-all hover:scale-[1.02]">
+              <span className="text-3xl">🏠</span>
+              <div className="text-left">
+                <h3 className="font-serif font-bold text-brand-navy text-lg">{propertyNames[o.property_id] || "Property"}</h3>
+                <p className="text-xs text-brand-dark">{lang === "en" ? "Tap to view" : "Toca para ver"}</p>
+              </div>
+              <span className="ml-auto text-brand-navy text-xl">→</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <footer className="bg-brand-navy text-white/60 text-center py-6 mt-12">
+        <img src="/logo_small.png" alt="Expat Advisor MX" className="h-8 w-auto mx-auto mb-2 opacity-60" />
+        <p className="text-xs">Hecho por duendes.app 2026</p>
+      </footer>
     </div>
   );
 
@@ -143,7 +224,13 @@ export default function DashboardPage() {
 
         {/* Top bar */}
         <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-4">
-          <div />
+          <div>
+            {hasMultipleProperties && (
+              <button onClick={backToSelector} className="text-white/80 hover:text-white text-xs bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
+                ← {lang === "en" ? "My Properties" : "Mis Propiedades"}
+              </button>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             {installPrompt && (
               <button onClick={() => installPrompt.prompt()} className="text-white/80 hover:text-white text-xs bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
