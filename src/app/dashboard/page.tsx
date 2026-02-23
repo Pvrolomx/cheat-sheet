@@ -226,17 +226,14 @@ export default function DashboardPage() {
           <h2 className="section-title">🏠 {t.property.title}</h2>
           <div className="card-premium">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <Stat label={t.property.beds} value={property.bedrooms} />
-              <Stat label={t.property.baths} value={property.bathrooms} />
-              <Stat label={t.property.sqft} value={property.sqft?.toLocaleString()} />
+              
               <Stat label={t.property.type} value={property.type} />
             </div>
             {property.fideicomiso && (
               <div className="bg-brand-navy/5 rounded-lg p-4 mb-4">
                 <p className="text-xs text-brand-dark uppercase tracking-wider mb-2">{t.property.fideicomiso}</p>
                 <p className="text-sm text-brand-navy font-medium">{property.fideicomiso}</p>
-                {property.fideicomiso_bank && <p className="text-xs text-brand-dark mt-1">{t.property.bank}: {property.fideicomiso_bank}</p>}
-                {property.fideicomiso_number && <p className="text-xs text-brand-dark">{t.property.number}: {property.fideicomiso_number}</p>}
+                {property.fideicomiso_bank && <p className="text-xs text-brand-dark mt-1">Trust #: {property.fideicomiso_bank}</p>}
               </div>
             )}
             {property.closing_date && (
