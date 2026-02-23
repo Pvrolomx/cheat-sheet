@@ -269,16 +269,9 @@ export default function AdminPage() {
                       <Input label="Name" defaultValue={c.name} onBlur={v => updateContact(c.id, { name: v })} />
                       <Input label="Specialty" defaultValue={c.specialty || ""} onBlur={v => updateContact(c.id, { specialty: v })} />
                       <Input label="Phone" defaultValue={c.phone} onBlur={v => updateContact(c.id, { phone: v })} />
-                      <Input label="Phone 2" defaultValue={c.phone2 || ""} onBlur={v => updateContact(c.id, { phone2: v })} />
                       <Input label="Email" defaultValue={c.email || ""} onBlur={v => updateContact(c.id, { email: v })} />
-                      <Input label="Address" defaultValue={c.address || ""} onBlur={v => updateContact(c.id, { address: v })} />
-                      <Input label="Website" defaultValue={c.website || ""} onBlur={v => updateContact(c.id, { website: v })} />
                     </div>
                     <Input label="Notes" defaultValue={c.notes || ""} onBlur={v => updateContact(c.id, { notes: v })} />
-                    <label className="flex items-center gap-2 mt-2 text-sm">
-                      <input type="checkbox" checked={c.is_global} onChange={e => updateContact(c.id, { is_global: e.target.checked })} />
-                      Global (applies to all properties)
-                    </label>
                     <button onClick={() => deleteContact(c.id)} className="text-xs text-red-500 mt-2 hover:underline">Delete</button>
                   </div>
                 ))}
