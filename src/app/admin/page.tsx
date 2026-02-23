@@ -358,6 +358,17 @@ function OwnerTab({ propertyId }: { propertyId: string }) {
     supabase.from("cs_owners").select("*").eq("property_id", propertyId).then(({ data }) => setOwners(data || []));
   }, [propertyId]);
 
+  const updateOwner = async (id: string, updates: any) => {
+    await supabase.from("cs_owners").update(updates).eq("id", id);
+    setOwners(owners.map(o => o.id === id ? { ...o, ...updates } : o));
+  };
+
+  const deleteOwner = async (id: string) => {
+    if (!confirm("Delete this owner? This will remove their access.")) return;
+    await supabase.from("cs_owners").delete().eq("id", id);
+    setOwners(owners.filter(o => o.id !== id));
+  };
+
   const createOwner = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreating(true);
@@ -382,8 +393,33 @@ function OwnerTab({ propertyId }: { propertyId: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="card-premium">
-        <h3 className="font-semibold text-brand-navy mb-4">Create Owner Account</h3>
+      {/* Existing Owners - Editable */}
+      {owners.length > 0 && (
+        <div>
+          <h3 className="font-semibold text-brand-navy mb-3">Property Owners</h3>
+          {owners.map(o => (
+            <div key={o.id} className="card-premium mb-3">
+              <div className="grid md:grid-cols-3 gap-3">
+                <Input label="Name" defaultValue={o.name} onBlur={(v: string) => updateOwner(o.id, { name: v })} />
+                <Input label="Email" defaultValue={o.email} onBlur={(v: string) => updateOwner(o.id, { email: v })} />
+                <Input label="Phone" defaultValue={o.phone || ""} onBlur={(v: string) => updateOwner(o.id, { phone: v })} />
+              </div>
+              <div className="flex items-center justify-between mt-3">
+                <a href={`/preview/${propertyId}`} target="_blank" rel="noopener" className="text-xs bg-brand-navy text-white px-3 py-1.5 rounded-lg hover:bg-opacity-90 transition-all">View as Owner →</a>
+                <button onClick={() => deleteOwner(o.id)} className="text-xs text-red-500 hover:underline">Delete</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {owners.length === 0 && (
+        <p className="text-sm text-brand-dark">No owners assigned to this property.</p>
+      )}
+
+      {/* Create New Owner */}
+      <div className="card-premium border-dashed border-2 border-brand-navy/20">
+        <h3 className="font-semibold text-brand-navy mb-4">+ Add New Owner</h3>
         <form onSubmit={createOwner} className="grid md:grid-cols-2 gap-3">
           <Input label="Name" value={name} onInput={setName} required />
           <Input label="Email" type="email" value={email} onInput={setEmail} required />
@@ -393,23 +429,6 @@ function OwnerTab({ propertyId }: { propertyId: string }) {
           </div>
         </form>
         {msg && <p className="text-sm mt-3">{msg}</p>}
-      </div>
-
-      <div>
-        <h3 className="font-semibold text-brand-navy mb-3">Current Owners</h3>
-        {owners.length === 0 ? <p className="text-sm text-brand-dark">No owners assigned</p> : (
-          <div className="space-y-2">
-            {owners.map(o => (
-              <div key={o.id} className="card-premium flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-brand-navy text-sm">{o.name}</p>
-                  <p className="text-xs text-brand-dark">{o.email}</p>
-                </div>
-                <a href={`/preview/${propertyId}`} target="_blank" rel="noopener" className="text-xs bg-brand-navy text-white px-3 py-1.5 rounded-lg hover:bg-opacity-90 transition-all">View as Owner →</a>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
