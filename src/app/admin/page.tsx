@@ -265,7 +265,7 @@ export default function AdminPage() {
                 {contacts.map(c => (
                   <div key={c.id} className="card-premium">
                     <div className="grid md:grid-cols-3 gap-3">
-                      <Select label="Category" defaultValue={c.category} options={["Emergency","Medical","Legal","Maintenance","Government"]} onChange={v => updateContact(c.id, { category: v })} />
+                      <Select label="Category" defaultValue={c.category} options={["Emergency","Medical","Attorney","Maintenance","Government","Broker","Administration"]} onChange={v => updateContact(c.id, { category: v })} />
                       <Input label="Name" defaultValue={c.name} onBlur={v => updateContact(c.id, { name: v })} />
                       <Input label="Specialty" defaultValue={c.specialty || ""} onBlur={v => updateContact(c.id, { specialty: v })} />
                       <Input label="Phone" defaultValue={c.phone} onBlur={v => updateContact(c.id, { phone: v })} />
