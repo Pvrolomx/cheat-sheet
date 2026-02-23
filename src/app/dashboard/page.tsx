@@ -249,10 +249,12 @@ export default function DashboardPage() {
                 <div key={s.id} className="card-premium">
                   <div className="flex items-center gap-3 mb-3">
                     <span className="text-2xl">{serviceIcons[s.type] || "📌"}</span>
-                    <h3 className="font-semibold text-brand-navy">{s.type}</h3>
+                    <div>
+                      <h3 className="font-semibold text-brand-navy">{s.type}</h3>
+                      {s.payment_freq && <span className="text-xs text-brand-dark">{s.payment_freq}</span>}
+                    </div>
                   </div>
                   {s.account_number && <p className="text-sm"><span className="text-brand-dark">{t.services.account}:</span> <span className="font-mono font-medium text-brand-navy">{s.account_number}</span></p>}
-                  {s.payment_freq && <p className="text-sm text-brand-dark">{t.services.frequency}: {s.payment_freq}</p>}
                   {s.notes && <p className="text-xs text-brand-dark mt-2 italic border-t pt-2">{s.notes}</p>}
                 </div>
               ))}
