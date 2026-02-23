@@ -381,9 +381,7 @@ function ContactCard({ contact, t }: { contact: Contact; t: any }) {
           {contact.specialty && <p className="text-xs text-brand-dark">{contact.specialty}</p>}
           <div className="flex flex-wrap gap-2 mt-2">
             <a href={`tel:${contact.phone}`} className="text-xs bg-brand-red/10 text-brand-red px-3 py-1 rounded-full font-medium">📞 {contact.phone}</a>
-            {contact.phone2 && <a href={`tel:${contact.phone2}`} className="text-xs bg-brand-red/10 text-brand-red px-3 py-1 rounded-full font-medium">📞 {contact.phone2}</a>}
             {contact.email && <a href={`mailto:${contact.email}`} className="text-xs bg-brand-navy/10 text-brand-navy px-3 py-1 rounded-full">✉️ {t.contacts.email}</a>}
-            {contact.address && <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.address)}`} target="_blank" rel="noopener" className="text-xs bg-brand-navy/10 text-brand-navy px-3 py-1 rounded-full">🗺️ {t.contacts.directions}</a>}
           </div>
           {contact.notes && <p className="text-xs text-brand-dark mt-2 italic">{contact.notes}</p>}
         </div>
