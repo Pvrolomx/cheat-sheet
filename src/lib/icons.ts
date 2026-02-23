@@ -7,6 +7,7 @@ export const serviceIcons: Record<string, string> = {
   Gas: "🔥",
   HOA: "🏢",
   Insurance: "🛡️",
+  "Bank Trust": "🏦",
 };
 
 export const contactCategoryIcons: Record<string, string> = {
