@@ -62,9 +62,6 @@ export default function AdminPage() {
     ["name","address","type","notes","fideicomiso","fideicomiso_bank","fideicomiso_number","photo_url","closing_date"].forEach(k => {
       updates[k] = form.get(k) || null;
     });
-    ["bedrooms","bathrooms","sqft"].forEach(k => {
-      updates[k] = parseInt(form.get(k) as string) || 0;
-    });
     const { error } = await supabase.from("cs_properties").update(updates).eq("id", selectedProp.id);
     setMsg(error ? `Error: ${error.message}` : "✅ Saved");
     if (!error) setSelectedProp({ ...selectedProp, ...updates });
@@ -199,7 +196,7 @@ export default function AdminPage() {
                   <button onClick={() => loadPropertyData(p)} className="w-full text-left">
                     <h3 className="font-semibold text-brand-navy">{p.name || "Untitled"}</h3>
                     <p className="text-xs text-brand-dark mt-1">{p.address || "No address"}</p>
-                    <p className="text-xs text-brand-dark mt-1">{p.type} · {p.bedrooms}bd/{p.bathrooms}ba</p>
+                    <p className="text-xs text-brand-dark mt-1">{p.type}</p>
                   </button>
                   <button onClick={(e) => { e.stopPropagation(); deleteProperty(p.id); }} className="absolute top-2 right-2 text-xs text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded">✕</button>
                 </div>
@@ -234,13 +231,9 @@ export default function AdminPage() {
                   <Input label="Address" name="address" defaultValue={selectedProp.address} />
                   <Select label="Type" name="type" defaultValue={selectedProp.type} options={["Condo","House","Lot","Villa"]} />
                   <Input label="Property Image URL" name="photo_url" defaultValue={selectedProp.photo_url || ""} />
-                  <Input label="Bedrooms" name="bedrooms" type="number" defaultValue={selectedProp.bedrooms} />
-                  <Input label="Bathrooms" name="bathrooms" type="number" defaultValue={selectedProp.bathrooms} />
-                  <Input label="Sq Ft" name="sqft" type="number" defaultValue={selectedProp.sqft} />
                   <Input label="Closing Date" name="closing_date" type="date" defaultValue={selectedProp.closing_date || ""} />
                   <Input label="Deed / Escritura" name="fideicomiso" defaultValue={selectedProp.fideicomiso || ""} />
-                  <Input label="Deed Bank" name="fideicomiso_bank" defaultValue={selectedProp.fideicomiso_bank || ""} />
-                  <Input label="Deed Number" name="fideicomiso_number" defaultValue={selectedProp.fideicomiso_number || ""} />
+                  <Input label="Trust Number" name="fideicomiso_bank" defaultValue={selectedProp.fideicomiso_bank || ""} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-brand-dark mb-1">Notes</label>
