@@ -251,13 +251,11 @@ export default function DashboardPage() {
                     <span className="text-2xl">{serviceIcons[s.type] || "📌"}</span>
                     <div>
                       <h3 className="font-semibold text-brand-navy">{s.type}</h3>
-                      <p className="text-xs text-brand-dark">{s.provider}</p>
+                      <p className="text-xs text-brand-dark">{s.type}</p>
                     </div>
                   </div>
                   {s.account_number && <p className="text-sm"><span className="text-brand-dark">{t.services.account}:</span> <span className="font-mono font-medium text-brand-navy">{s.account_number}</span></p>}
-                  {s.phone && <p className="text-sm"><span className="text-brand-dark">{t.services.phone}:</span> <a href={`tel:${s.phone}`} className="text-brand-red font-medium hover:underline">{s.phone}</a></p>}
                   {s.payment_freq && <p className="text-sm text-brand-dark">{t.services.frequency}: {s.payment_freq}</p>}
-                  {s.website && <a href={s.website} target="_blank" rel="noopener" className="inline-block mt-2 text-sm bg-brand-navy text-white px-4 py-1.5 rounded-lg hover:bg-opacity-90 transition-all">{t.services.payOnline} →</a>}
                   {s.notes && <p className="text-xs text-brand-dark mt-2 italic border-t pt-2">{s.notes}</p>}
                 </div>
               ))}
