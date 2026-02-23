@@ -8,6 +8,8 @@ export const serviceIcons: Record<string, string> = {
   HOA: "🏢",
   Insurance: "🛡️",
   "Bank Trust": "🏦",
+  "Car Insurance": "🚗",
+  "Vehicle Tax": "🪪",
 };
 
 export const contactCategoryIcons: Record<string, string> = {
