@@ -22,6 +22,7 @@ export default function PreviewPage() {
   const [dataLoading, setDataLoading] = useState(true);
   const [ownerName, setOwnerName] = useState("");
   const [activeSection, setActiveSection] = useState("");
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) router.push("/");
@@ -54,6 +55,7 @@ export default function PreviewPage() {
       setZones(zoneRes.data || []);
       setDocuments(docRes.data || []);
       setDataLoading(false);
+      setTimeout(() => setShowWelcome(true), 500);
     };
     load();
   }, [user, isAdmin, propertyId]);
@@ -106,6 +108,27 @@ export default function PreviewPage() {
             </button>
           </div>
         </div>
+
+        {/* Welcome Modal */}
+        {showWelcome && property && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowWelcome(false)}>
+            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center" onClick={e => e.stopPropagation()}>
+              <div className="text-5xl mb-4">🎉</div>
+              <h2 className="text-2xl font-serif font-bold text-brand-navy mb-2">
+                {lang === "en" ? "Congratulations" : "Felicidades"}{ownerName ? `, ${ownerName}` : ""}!
+              </h2>
+              <p className="text-brand-dark mb-4">
+                {lang === "en"
+                  ? `Welcome to your personal property portal for ${property.name}. Everything you need — services, contacts, documents, and more — is right here.`
+                  : `Bienvenido a tu portal personal para ${property.name}. Todo lo que necesitas — servicios, contactos, documentos y más — está aquí.`
+                }
+              </p>
+              <button onClick={() => setShowWelcome(false)} className="btn-primary px-8">
+                {lang === "en" ? "Explore My Property" : "Explorar Mi Propiedad"}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Property info overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-6">
