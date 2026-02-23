@@ -249,7 +249,7 @@ export default function AdminPage() {
                 {services.map(s => (
                   <div key={s.id} className="card-premium">
                     <div className="grid md:grid-cols-3 gap-3">
-                      <Select label="Type" defaultValue={s.type} options={["CFE","Telmex","Water","Predial","Internet","Gas","HOA","Insurance","Bank Trust"]} onChange={v => updateService(s.id, { type: v })} />
+                      <Select label="Type" defaultValue={s.type} options={["CFE","Telmex","Water","Predial","Internet","Gas","HOA","Insurance","Bank Trust","Car Insurance","Vehicle Tax"]} onChange={v => updateService(s.id, { type: v })} />
                       <Input label="Account #" defaultValue={s.account_number || ""} onBlur={v => updateService(s.id, { account_number: v })} />
                       <Select label="Frequency" defaultValue={s.payment_freq || ""} options={["Monthly","Bimonthly","Annual","One-time"]} onChange={v => updateService(s.id, { payment_freq: v })} />
                     </div>
