@@ -236,9 +236,6 @@ export default function DashboardPage() {
                 {property.fideicomiso_bank && <p className="text-xs text-brand-dark mt-1">Trust #: {property.fideicomiso_bank}</p>}
               </div>
             )}
-            {property.closing_date && (
-              <p className="text-sm text-brand-dark">{t.property.closingDate}: <span className="font-medium text-brand-navy">{new Date(property.closing_date).toLocaleDateString()}</span></p>
-            )}
             {property.notes && <p className="text-sm text-brand-dark mt-2 italic">{property.notes}</p>}
           </div>
         </section>}
