@@ -59,7 +59,7 @@ export default function AdminPage() {
     setSaving(true);
     const form = new FormData(e.currentTarget);
     const updates: any = {};
-    ["name","address","type","notes","fideicomiso","fideicomiso_bank","fideicomiso_number","photo_url","closing_date"].forEach(k => {
+    ["name","address","type","notes","fideicomiso","fideicomiso_bank","fideicomiso_number","photo_url"].forEach(k => {
       updates[k] = form.get(k) || null;
     });
     const { error } = await supabase.from("cs_properties").update(updates).eq("id", selectedProp.id);
@@ -231,7 +231,6 @@ export default function AdminPage() {
                   <Input label="Address" name="address" defaultValue={selectedProp.address} />
                   <Select label="Type" name="type" defaultValue={selectedProp.type} options={["Condo","House","Lot","Villa"]} />
                   <Input label="Property Image URL" name="photo_url" defaultValue={selectedProp.photo_url || ""} />
-                  <Input label="Closing Date" name="closing_date" type="date" defaultValue={selectedProp.closing_date || ""} />
                   <Input label="Deed / Escritura" name="fideicomiso" defaultValue={selectedProp.fideicomiso || ""} />
                   <Input label="Trust Number" name="fideicomiso_bank" defaultValue={selectedProp.fideicomiso_bank || ""} />
                 </div>
