@@ -15,9 +15,11 @@ export const serviceIcons: Record<string, string> = {
 export const contactCategoryIcons: Record<string, string> = {
   Emergency: "🚨",
   Medical: "🏥",
-  Legal: "⚖️",
+  Attorney: "⚖️",
   Maintenance: "🔧",
   Government: "🏛️",
+  Broker: "🏠",
+  Administration: "📋",
 };
 
 export const zoneCategoryIcons: Record<string, string> = {
