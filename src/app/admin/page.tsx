@@ -177,7 +177,6 @@ export default function AdminPage() {
           <h1 className="text-lg font-serif font-bold">Admin Panel</h1>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setLang(lang === "en" ? "es" : "en")} className="text-white/80 hover:text-white text-xs bg-white/10 px-3 py-1.5 rounded-full">{lang === "en" ? "🇲🇽 ES" : "🇺🇸 EN"}</button>
           <button onClick={signOut} className="text-white/80 hover:text-white text-xs bg-white/10 px-3 py-1.5 rounded-full">{t.nav.logout}</button>
         </div>
       </header>
@@ -207,7 +206,7 @@ export default function AdminPage() {
           /* Property Editor */
           <div>
             <div className="flex justify-between items-center mb-4">
-              <button onClick={() => setSelectedProp(null)} className="text-sm text-brand-dark hover:text-brand-navy inline-block">← {t.common.back} to properties</button>
+              <button onClick={() => setSelectedProp(null)} className="text-sm text-brand-dark hover:text-brand-navy inline-block">← Back to properties</button>
               <button onClick={() => deleteProperty(selectedProp.id)} className="text-xs text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg">Delete Property</button>
             </div>
             <h2 className="section-title">{selectedProp.name || "Untitled Property"}</h2>
