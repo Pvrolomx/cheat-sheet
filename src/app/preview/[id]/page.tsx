@@ -190,6 +190,7 @@ export default function PreviewPage() {
                   </div>
                   {s.account_number && <p className="text-sm"><span className="text-brand-dark">{t.services.account}:</span> <span className="font-mono font-medium text-brand-navy">{s.account_number}</span></p>}
                   {s.payment_freq && <p className="text-sm text-brand-dark">{t.services.frequency}: {s.payment_freq}</p>}
+                  {s.notes && <p className="text-xs text-brand-dark mt-2 italic border-t pt-2">{s.notes}</p>}
                 </div>
               ))}
             </div>
