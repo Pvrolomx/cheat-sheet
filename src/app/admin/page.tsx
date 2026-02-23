@@ -249,14 +249,10 @@ export default function AdminPage() {
                 {services.map(s => (
                   <div key={s.id} className="card-premium">
                     <div className="grid md:grid-cols-3 gap-3">
-                      <Select label="Type" defaultValue={s.type} options={["CFE","Telmex","Water","Predial","Internet","Gas","HOA","Insurance"]} onChange={v => updateService(s.id, { type: v })} />
-                      <Input label="Provider" defaultValue={s.provider} onBlur={v => updateService(s.id, { provider: v })} />
+                      <Select label="Type" defaultValue={s.type} options={["CFE","Telmex","Water","Predial","Internet","Gas","HOA","Insurance","Bank Trust"]} onChange={v => updateService(s.id, { type: v })} />
                       <Input label="Account #" defaultValue={s.account_number || ""} onBlur={v => updateService(s.id, { account_number: v })} />
-                      <Input label="Phone" defaultValue={s.phone || ""} onBlur={v => updateService(s.id, { phone: v })} />
-                      <Input label="Website" defaultValue={s.website || ""} onBlur={v => updateService(s.id, { website: v })} />
                       <Select label="Frequency" defaultValue={s.payment_freq || ""} options={["Monthly","Bimonthly","Annual","One-time"]} onChange={v => updateService(s.id, { payment_freq: v })} />
                     </div>
-                    <Input label="Notes" defaultValue={s.notes || ""} onBlur={v => updateService(s.id, { notes: v })} />
                     <button onClick={() => deleteService(s.id)} className="text-xs text-red-500 mt-2 hover:underline">Delete</button>
                   </div>
                 ))}
