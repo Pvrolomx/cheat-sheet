@@ -23,6 +23,7 @@ export default function PreviewPage() {
   const [ownerName, setOwnerName] = useState("");
   const [activeSection, setActiveSection] = useState("");
   const [showWelcome, setShowWelcome] = useState(false);
+  const [siblingProperties, setSiblingProperties] = useState<{id: string; name: string}[]>([]);
 
   useEffect(() => {
     if (!loading && !user) router.push("/");
@@ -32,14 +33,27 @@ export default function PreviewPage() {
   useEffect(() => {
     if (!user || !isAdmin || !propertyId) return;
     const load = async () => {
-      // Get owner name if exists
+      // Get owner for this property
       const { data: owner } = await supabase
         .from("cs_owners")
-        .select("name")
+        .select("name, user_id")
         .eq("property_id", propertyId)
         .limit(1)
         .single();
       if (owner?.name) setOwnerName(owner.name);
+
+      // Find sibling properties (same owner, different properties)
+      if (owner?.user_id) {
+        const { data: allOwnerRecords } = await supabase
+          .from("cs_owners")
+          .select("property_id")
+          .eq("user_id", owner.user_id);
+        if (allOwnerRecords && allOwnerRecords.length > 1) {
+          const otherIds = allOwnerRecords.map(o => o.property_id).filter(id => id !== propertyId);
+          const { data: otherProps } = await supabase.from("cs_properties").select("id, name").in("id", otherIds);
+          setSiblingProperties(otherProps || []);
+        }
+      }
 
       const [propRes, svcRes, contRes, zoneRes, docRes] = await Promise.all([
         supabase.from("cs_properties").select("*").eq("id", propertyId).single(),
@@ -86,9 +100,12 @@ export default function PreviewPage() {
   return (
     <div className="min-h-screen bg-brand-cream">
       {/* Admin Preview Banner */}
-      <div className="bg-amber-500 text-white text-center py-2 px-4 text-sm font-medium">
-        👁️ Admin Preview — This is how the owner sees their property
-        <button onClick={() => router.push("/admin")} className="ml-4 bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full text-xs">← Back to Admin</button>
+      <div className="bg-amber-500 text-white text-center py-2 px-4 text-sm font-medium flex items-center justify-center gap-3 flex-wrap">
+        <span>👁️ Admin Preview — This is how the owner sees their property</span>
+        {siblingProperties.map(sp => (
+          <a key={sp.id} href={`/preview/${sp.id}`} className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full text-xs">→ {sp.name}</a>
+        ))}
+        <button onClick={() => router.push("/admin")} className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full text-xs">← Back to Admin</button>
       </div>
 
       {/* Hero */}
