@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 import type { Property, Service, Contact, ZoneInfo, Document as DocType } from "@/lib/types";
 import { serviceIcons, contactCategoryIcons, zoneCategoryIcons } from "@/lib/icons";
 
-type Tab = "info" | "services" | "contacts" | "zone" | "documents" | "owner";
+type Tab = "info" | "services" | "contacts" | "zone" | "documents";
 
 export default function AdminPage() {
   const { user, isAdmin, loading, signOut } = useAuth();
@@ -21,6 +21,7 @@ export default function AdminPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [zones, setZones] = useState<ZoneInfo[]>([]);
   const [documents, setDocuments] = useState<DocType[]>([]);
+  const [owners, setOwners] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
@@ -41,16 +42,18 @@ export default function AdminPage() {
   const loadPropertyData = async (p: Property) => {
     setSelectedProp(p);
     setTab("info");
-    const [svc, cont, zone, docs] = await Promise.all([
+    const [svc, cont, zone, docs, own] = await Promise.all([
       supabase.from("cs_services").select("*").eq("property_id", p.id).order("type"),
       supabase.from("cs_contacts").select("*").or(`property_id.eq.${p.id},is_global.eq.true`).order("category"),
       supabase.from("cs_zone_info").select("*").or(`property_id.eq.${p.id},is_global.eq.true`).order("category"),
       supabase.from("cs_documents").select("*").eq("property_id", p.id).order("category"),
+      supabase.from("cs_owners").select("*").eq("property_id", p.id),
     ]);
     setServices(svc.data || []);
     setContacts(cont.data || []);
     setZones(zone.data || []);
     setDocuments(docs.data || []);
+    setOwners(own.data || []);
   };
 
   const saveProperty = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -67,6 +70,17 @@ export default function AdminPage() {
     if (!error) setSelectedProp({ ...selectedProp, ...updates });
     setSaving(false);
     setTimeout(() => setMsg(""), 3000);
+  };
+
+  const updateOwner = async (id: string, updates: any) => {
+    await supabase.from("cs_owners").update(updates).eq("id", id);
+    setOwners(owners.map(o => o.id === id ? { ...o, ...updates } : o));
+  };
+
+  const deleteOwner = async (id: string) => {
+    if (!confirm("Delete this owner? This will remove their access.")) return;
+    await supabase.from("cs_owners").delete().eq("id", id);
+    setOwners(owners.filter(o => o.id !== id));
   };
 
   const addProperty = async () => {
@@ -215,9 +229,9 @@ export default function AdminPage() {
 
             {/* Tabs */}
             <div className="flex gap-1 mb-6 overflow-x-auto">
-              {(["info","services","contacts","zone","documents","owner"] as Tab[]).map(t => (
+              {(["info","services","contacts","zone","documents"] as Tab[]).map(t => (
                 <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${tab === t ? "bg-brand-navy text-white" : "bg-white text-brand-dark hover:bg-gray-50"}`}>
-                  {t === "info" ? "🏠 Property" : t === "services" ? "⚡ Services" : t === "contacts" ? "📋 Contacts" : t === "zone" ? "🗺️ Zone" : t === "documents" ? "📄 Documents" : "👤 Owner"}
+                  {t === "info" ? "🏠 Property" : t === "services" ? "⚡ Services" : t === "contacts" ? "📋 Contacts" : t === "zone" ? "🗺️ Zone" : "📄 Documents"}
                 </button>
               ))}
             </div>
@@ -239,6 +253,31 @@ export default function AdminPage() {
                 </div>
                 <button type="submit" disabled={saving} className="btn-primary text-sm">{saving ? "Saving..." : "Save Changes"}</button>
               </form>
+
+              {/* Owner Section within Property tab */}
+              <div className="mt-6">
+                <h3 className="font-semibold text-brand-navy mb-3">👤 Property Owner</h3>
+                {owners.map(o => (
+                  <div key={o.id} className="card-premium mb-3">
+                    <div className="grid md:grid-cols-3 gap-3">
+                      <Input label="Owner Name" defaultValue={o.name} onBlur={(v: string) => updateOwner(o.id, { name: v })} />
+                      <Input label="Owner Email" defaultValue={o.email} onBlur={(v: string) => updateOwner(o.id, { email: v })} />
+                      <Input label="Owner Phone" defaultValue={o.phone || ""} onBlur={(v: string) => updateOwner(o.id, { phone: v })} />
+                    </div>
+                    <div className="flex items-center justify-between mt-3">
+                      <a href={`/preview/${selectedProp.id}`} target="_blank" rel="noopener" className="text-xs bg-brand-navy text-white px-3 py-1.5 rounded-lg hover:bg-opacity-90 transition-all">View as Owner →</a>
+                      <button onClick={() => deleteOwner(o.id)} className="text-xs text-red-500 hover:underline">Remove Owner</button>
+                    </div>
+                  </div>
+                ))}
+                {owners.length === 0 && (
+                  <p className="text-sm text-brand-dark italic">No owner assigned yet. Create one below.</p>
+                )}
+                <CreateOwnerInline propertyId={selectedProp.id} onCreated={async () => {
+                  const { data } = await supabase.from("cs_owners").select("*").eq("property_id", selectedProp.id);
+                  setOwners(data || []);
+                }} />
+              </div>
             )}
 
             {/* TAB: SERVICES */}
@@ -326,10 +365,6 @@ export default function AdminPage() {
             )}
 
             {/* TAB: OWNER */}
-            {tab === "owner" && (
-              <OwnerTab propertyId={selectedProp.id} />
-            )}
-
             {/* Preview button */}
             <div className="mt-8 text-center">
               
@@ -345,29 +380,14 @@ export default function AdminPage() {
   );
 }
 
-// Owner management sub-component
-function OwnerTab({ propertyId }: { propertyId: string }) {
-  const [owners, setOwners] = useState<any[]>([]);
+// Inline create owner component
+function CreateOwnerInline({ propertyId, onCreated }: { propertyId: string; onCreated: () => void }) {
+  const [show, setShow] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [creating, setCreating] = useState(false);
   const [msg, setMsg] = useState("");
-
-  useEffect(() => {
-    supabase.from("cs_owners").select("*").eq("property_id", propertyId).then(({ data }) => setOwners(data || []));
-  }, [propertyId]);
-
-  const updateOwner = async (id: string, updates: any) => {
-    await supabase.from("cs_owners").update(updates).eq("id", id);
-    setOwners(owners.map(o => o.id === id ? { ...o, ...updates } : o));
-  };
-
-  const deleteOwner = async (id: string) => {
-    if (!confirm("Delete this owner? This will remove their access.")) return;
-    await supabase.from("cs_owners").delete().eq("id", id);
-    setOwners(owners.filter(o => o.id !== id));
-  };
 
   const createOwner = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -384,52 +404,29 @@ function OwnerTab({ propertyId }: { propertyId: string }) {
       else {
         setMsg(`✅ Owner created: ${email}`);
         setEmail(""); setName(""); setPassword("");
-        const { data: newOwners } = await supabase.from("cs_owners").select("*").eq("property_id", propertyId);
-        setOwners(newOwners || []);
+        setShow(false);
+        onCreated();
       }
     } catch (err: any) { setMsg(`Error: ${err.message}`); }
     setCreating(false);
   };
 
+  if (!show) return (
+    <button onClick={() => setShow(true)} className="text-xs text-brand-navy hover:underline mt-2">+ Add Owner Account</button>
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Existing Owners - Editable */}
-      {owners.length > 0 && (
-        <div>
-          <h3 className="font-semibold text-brand-navy mb-3">Property Owners</h3>
-          {owners.map(o => (
-            <div key={o.id} className="card-premium mb-3">
-              <div className="grid md:grid-cols-3 gap-3">
-                <Input label="Name" defaultValue={o.name} onBlur={(v: string) => updateOwner(o.id, { name: v })} />
-                <Input label="Email" defaultValue={o.email} onBlur={(v: string) => updateOwner(o.id, { email: v })} />
-                <Input label="Phone" defaultValue={o.phone || ""} onBlur={(v: string) => updateOwner(o.id, { phone: v })} />
-              </div>
-              <div className="flex items-center justify-between mt-3">
-                <a href={`/preview/${propertyId}`} target="_blank" rel="noopener" className="text-xs bg-brand-navy text-white px-3 py-1.5 rounded-lg hover:bg-opacity-90 transition-all">View as Owner →</a>
-                <button onClick={() => deleteOwner(o.id)} className="text-xs text-red-500 hover:underline">Delete</button>
-              </div>
-            </div>
-          ))}
+    <div className="card-premium border-dashed border-2 border-brand-navy/20 mt-3">
+      <form onSubmit={createOwner} className="grid md:grid-cols-2 gap-3">
+        <Input label="Name" value={name} onInput={setName} required />
+        <Input label="Email" type="email" value={email} onInput={setEmail} required />
+        <Input label="Password" type="password" value={password} onInput={setPassword} required />
+        <div className="flex items-end gap-2">
+          <button type="submit" disabled={creating} className="btn-primary text-sm flex-1">{creating ? "Creating..." : "Create"}</button>
+          <button type="button" onClick={() => setShow(false)} className="text-xs text-brand-dark hover:underline">Cancel</button>
         </div>
-      )}
-
-      {owners.length === 0 && (
-        <p className="text-sm text-brand-dark">No owners assigned to this property.</p>
-      )}
-
-      {/* Create New Owner */}
-      <div className="card-premium border-dashed border-2 border-brand-navy/20">
-        <h3 className="font-semibold text-brand-navy mb-4">+ Add New Owner</h3>
-        <form onSubmit={createOwner} className="grid md:grid-cols-2 gap-3">
-          <Input label="Name" value={name} onInput={setName} required />
-          <Input label="Email" type="email" value={email} onInput={setEmail} required />
-          <Input label="Password" type="password" value={password} onInput={setPassword} required />
-          <div className="flex items-end">
-            <button type="submit" disabled={creating} className="btn-primary text-sm w-full">{creating ? "Creating..." : "Create Owner"}</button>
-          </div>
-        </form>
-        {msg && <p className="text-sm mt-3">{msg}</p>}
-      </div>
+      </form>
+      {msg && <p className="text-sm mt-2">{msg}</p>}
     </div>
   );
 }
