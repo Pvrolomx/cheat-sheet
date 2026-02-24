@@ -30,9 +30,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from("cs_owners")
       .select("id")
       .eq("user_id", u.id)
-      .single();
-    // If user is NOT in owners table, they are admin
-    setIsAdmin(!data);
+      .limit(1);
+    // If user IS in owners table, they are an owner (not admin)
+    setIsAdmin(!data || data.length === 0);
   };
 
   useEffect(() => {
