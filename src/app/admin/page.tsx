@@ -237,7 +237,7 @@ export default function AdminPage() {
             </div>
 
             {/* TAB: INFO */}
-            {tab === "info" && (
+            {tab === "info" && (<>
               <form onSubmit={saveProperty} className="card-premium space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <Input label="Name" name="name" defaultValue={selectedProp.name} />
@@ -278,7 +278,7 @@ export default function AdminPage() {
                   setOwners(data || []);
                 }} />
               </div>
-            )}
+            </>)}
 
             {/* TAB: SERVICES */}
             {tab === "services" && (
