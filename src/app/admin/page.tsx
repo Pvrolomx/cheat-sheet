@@ -211,7 +211,10 @@ export default function AdminPage() {
                     <p className="text-xs text-brand-dark mt-1">{p.address || "No address"}</p>
                     <p className="text-xs text-brand-dark mt-1">{p.type}</p>
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); deleteProperty(p.id); }} className="absolute top-2 right-2 text-xs text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded">✕</button>
+                  <div className="flex items-center justify-between mt-2">
+                    <a href={`/preview/${p.id}`} target="_blank" rel="noopener" onClick={(e) => e.stopPropagation()} className="text-xs bg-brand-navy/10 text-brand-navy px-3 py-1 rounded-full hover:bg-brand-navy/20 transition-all">👁️ Preview</a>
+                    <button onClick={(e) => { e.stopPropagation(); deleteProperty(p.id); }} className="text-xs text-red-400 hover:text-red-600">✕</button>
+                  </div>
                 </div>
               ))}
             </div>
