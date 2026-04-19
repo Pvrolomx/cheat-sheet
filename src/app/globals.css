@@ -42,3 +42,15 @@ h1, h2, h3 {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f1f1f1; }
 ::-webkit-scrollbar-thumb { background: var(--brand-gray); border-radius: 3px; }
+
+/* Print styles — Closing Summary */
+@media print {
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 2rem; }
+  .no-print { display: none !important; }
+  .print-area h2 { font-size: 1.8rem; margin-bottom: 1rem; }
+  .print-area .card-premium { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+  .print-area .closing-row { border-bottom: 1px solid #eee; padding: 0.5rem 0; }
+  @page { margin: 1.5cm; }
+}
