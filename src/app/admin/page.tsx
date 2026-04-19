@@ -62,7 +62,7 @@ export default function AdminPage() {
     setSaving(true);
     const form = new FormData(e.currentTarget);
     const updates: any = {};
-    ["name","address","type","notes","fideicomiso","fideicomiso_bank","fideicomiso_number","photo_url"].forEach(k => {
+    ["name","address","type","notes","fideicomiso","fideicomiso_bank","fideicomiso_number","closing_date","photo_url"].forEach(k => {
       updates[k] = form.get(k) || null;
     });
     const { error } = await supabase.from("cs_properties").update(updates).eq("id", selectedProp.id);
@@ -249,6 +249,11 @@ export default function AdminPage() {
                   <Input label="Property Image URL" name="photo_url" defaultValue={selectedProp.photo_url || ""} />
                   <Input label="Deed / Escritura" name="fideicomiso" defaultValue={selectedProp.fideicomiso || ""} />
                   <Input label="Trust Number" name="fideicomiso_bank" defaultValue={selectedProp.fideicomiso_bank || ""} />
+                  <Input label="Deed Number (Escritura Pública No.)" name="fideicomiso_number" defaultValue={selectedProp.fideicomiso_number || ""} />
+                  <div>
+                    <label className="block text-sm font-medium text-brand-dark mb-1">Closing Date</label>
+                    <input type="date" name="closing_date" defaultValue={selectedProp.closing_date ? selectedProp.closing_date.split('T')[0] : ""} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 focus:ring-2 focus:ring-brand-navy/50 outline-none" />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-brand-dark mb-1">Notes</label>
@@ -377,7 +382,7 @@ export default function AdminPage() {
       </div>
 
       <footer className="bg-brand-navy text-white/40 text-center py-4 mt-8 text-xs">
-        Hecho por duendes.app 2026
+        Hecho por Colmena 2026
       </footer>
     </div>
   );
