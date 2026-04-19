@@ -190,7 +190,7 @@ export default function DashboardPage() {
       </div>
       <footer className="bg-brand-navy text-white/60 text-center py-6 mt-12">
         <img src="/logo_small.png" alt="Expat Advisor MX" className="h-8 w-auto mx-auto mb-2 opacity-60" />
-        <p className="text-xs">Hecho por duendes.app 2026</p>
+        <p className="text-xs">Hecho por Colmena 2026</p>
       </footer>
     </div>
   );
@@ -291,6 +291,7 @@ export default function DashboardPage() {
       <div className="max-w-5xl mx-auto px-4 py-6">
         <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
           {[
+            { id: "closing", icon: "📜", label: t.nav.closing },
             { id: "property", icon: "🏠", label: t.nav.myProperty },
             { id: "services", icon: "⚡", label: t.nav.services },
             { id: "emergency", icon: "🚨", label: t.nav.emergency },
@@ -307,6 +308,77 @@ export default function DashboardPage() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 pb-8">
+
+        {/* SECTION: CLOSING SUMMARY */}
+        {activeSection === "closing" && <section id="closing" className="print-area">
+          <div className="flex items-center justify-between mb-4 no-print">
+            <h2 className="section-title">📜 {t.closing.title}</h2>
+            <button onClick={() => window.print()} className="btn-primary text-sm px-4 py-2">
+              🖨️ {t.closing.print}
+            </button>
+          </div>
+          <h2 className="section-title hidden print:block">📜 {t.closing.title}</h2>
+          <p className="text-sm text-brand-dark mb-5 italic">{t.closing.subtitle}</p>
+
+          {(!property.address && !property.fideicomiso && !property.closing_date && !property.notes) ? (
+            <p className="text-brand-dark text-sm italic">{t.closing.empty}</p>
+          ) : (
+            <div className="card-premium space-y-3">
+              {property.name && (
+                <div className="closing-row border-b border-gray-100 pb-3">
+                  <p className="text-xs text-brand-dark uppercase tracking-wider mb-1">{t.property.title}</p>
+                  <p className="text-base font-semibold text-brand-navy">{property.name}</p>
+                </div>
+              )}
+              {property.address && (
+                <div className="closing-row border-b border-gray-100 pb-3">
+                  <p className="text-xs text-brand-dark uppercase tracking-wider mb-1">{t.closing.address}</p>
+                  <p className="text-sm text-brand-navy">{property.address}</p>
+                </div>
+              )}
+              {property.type && (
+                <div className="closing-row border-b border-gray-100 pb-3">
+                  <p className="text-xs text-brand-dark uppercase tracking-wider mb-1">{t.closing.type}</p>
+                  <p className="text-sm text-brand-navy">{property.type}</p>
+                </div>
+              )}
+              {property.closing_date && (
+                <div className="closing-row border-b border-gray-100 pb-3">
+                  <p className="text-xs text-brand-dark uppercase tracking-wider mb-1">{t.closing.closingDate}</p>
+                  <p className="text-sm text-brand-navy">{new Date(property.closing_date).toLocaleDateString(lang === "en" ? "en-US" : "es-MX", { year: "numeric", month: "long", day: "numeric" })}</p>
+                </div>
+              )}
+              {property.fideicomiso && (
+                <div className="closing-row border-b border-gray-100 pb-3">
+                  <p className="text-xs text-brand-dark uppercase tracking-wider mb-1">{t.closing.trustInstitution}</p>
+                  <p className="text-sm text-brand-navy font-medium">{property.fideicomiso}</p>
+                </div>
+              )}
+              {property.fideicomiso_bank && (
+                <div className="closing-row border-b border-gray-100 pb-3">
+                  <p className="text-xs text-brand-dark uppercase tracking-wider mb-1">{t.closing.trustNumber}</p>
+                  <p className="text-sm font-mono font-medium text-brand-navy">{property.fideicomiso_bank}</p>
+                </div>
+              )}
+              {property.fideicomiso_number && (
+                <div className="closing-row border-b border-gray-100 pb-3">
+                  <p className="text-xs text-brand-dark uppercase tracking-wider mb-1">{t.property.number}</p>
+                  <p className="text-sm font-mono font-medium text-brand-navy">{property.fideicomiso_number}</p>
+                </div>
+              )}
+              {property.notes && (
+                <div className="closing-row pt-2">
+                  <p className="text-xs text-brand-dark uppercase tracking-wider mb-1">{t.closing.notarialNotes}</p>
+                  <p className="text-sm text-brand-navy whitespace-pre-wrap">{property.notes}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="mt-5 bg-brand-gold/10 border border-brand-gold/30 rounded-lg p-4">
+            <p className="text-xs text-brand-navy leading-relaxed">⚖️ {t.closing.disclaimer}</p>
+          </div>
+        </section>}
 
         {/* SECTION: MY PROPERTY */}
         {activeSection === "property" && <section id="property">
@@ -442,7 +514,7 @@ export default function DashboardPage() {
       {/* Footer */}
       <footer className="bg-brand-navy text-white/60 text-center py-6 mt-12">
         <img src="/logo_small.png" alt="Expat Advisor MX" className="h-8 w-auto mx-auto mb-2 opacity-60" />
-        <p className="text-xs">Hecho por duendes.app 2026</p>
+        <p className="text-xs">Hecho por Colmena 2026</p>
       </footer>
     </div>
   );
